@@ -13,6 +13,13 @@ public class Graph : MonoBehaviour
     [Range (10,100)]
     public int AmountCubes;
 
+    // a simple slider to select which SineFunction to use
+    [Range (0,1)]
+    public int Function;
+
+    [Range (1,5)]
+    public int TimeInfluence;
+
     void Awake()
     {
         float step = 2f / AmountCubes;
@@ -41,12 +48,6 @@ public class Graph : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -60,10 +61,14 @@ public class Graph : MonoBehaviour
             Transform point = this._pointPrefabs[i];
             Vector3 position = point.localPosition;
 
-            // using .Sin will ensure the Graph staying inside the -1 - 1
-            // frame and not rise out of the screen, incorporating the Time.time
-            // will give it a variable to change over time and animate
-            position.y = this.MultiSineFunction(position.x, t);
+            if(this.Function == 0)
+            {
+                position.y = Graph.SineFunction(position.x, t);
+            }
+            else
+            {
+                position.y = Graph.MultiSineFunction(position.x, t, this.TimeInfluence);
+            }
 
             // remember to explicitly set the position to the point taken
             // from the array*
@@ -71,7 +76,14 @@ public class Graph : MonoBehaviour
         }        
     }
 
-    private float SineFunction(float x, float t)
+    /// <summary>
+    /// * These functions can be static because they have no connection at all
+    ///   with the Graph domain or instance. (They rely on parameters, and that's it)
+    /// 
+    ///   However, we are not using it's static-ness here because they are only used by the
+    ///   Graph class at the moment.
+    /// </summary>
+    static float SineFunction(float x, float t)
     {
         return Mathf.Sin(Mathf.PI * (x + t));
     }
@@ -86,11 +98,18 @@ public class Graph : MonoBehaviour
     /// the maximum and minimum values of this new function will be 1.5 and −1.5. 
     /// To guarantee that we stay in the −1–1 range, we should divide the entire thing
     /// by 1.5, which is the same as multiplying by 2/3.
+    /// 
+    /// 
+    /// * These functions can be static because they have no connection at all
+    ///   with the Graph domain or instance. (They rely on parameters, and that's it)
+    /// 
+    ///   However, we are not using it's static-ness here because they are only used by the
+    ///   Graph class at the moment.
     /// </summary>
-    private float MultiSineFunction(float x, float t)
+    static float MultiSineFunction(float x, float t, float timeInfluence)
     {
         float toReturn = Mathf.Sin(Mathf.PI * (x + t));
-        toReturn += Mathf.Sin(2f * Mathf.PI * (x + t)) / 2f;
+        toReturn += Mathf.Sin(2f * Mathf.PI * (x + timeInfluence * t)) / 2f;
         toReturn *= 2f / 3f;
 
         return toReturn;
