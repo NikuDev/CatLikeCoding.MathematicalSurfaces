@@ -50,6 +50,9 @@ public class Graph : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Time.time returns the time at the moment of the frame,
+        // since Update is called once per frame, Time.time remains the same during this function
+        float t = Time.time;
         // we'll use Update to manipulate the .y positions of all the points
         // to make the graph animate
         for(int i = 0; i < this._pointPrefabs.Length; i++)
@@ -57,36 +60,39 @@ public class Graph : MonoBehaviour
             Transform point = this._pointPrefabs[i];
             Vector3 position = point.localPosition;
 
-            //// linear positioning where y = x
-            //// x=-1, y=-1 - x=-0.8, y=-0.8, x=-0.6, y=-0.6 etc.
-            //position.y = position.x;
-
-            //// using x^2 to set the .y position
-            //position.y = position.x * position.x;
-
-            //// using x^3 to set the .y position
-            //position.y = position.x * position.x * position.x;
-
             // using .Sin will ensure the Graph staying inside the -1 - 1
             // frame and not rise out of the screen, incorporating the Time.time
             // will give it a variable to change over time and animate
-            position.y = Mathf.Sin(Mathf.PI * (position.x + Time.time));
+            position.y = this.MultiSineFunction(position.x, t);
 
             // remember to explicitly set the position to the point taken
             // from the array*
             point.localPosition = position;
+        }        
+    }
 
-            // Couldn't we directly assign to point.localPosition.y?
-            // If localPosition were a field, then this would be possible.
-            // We could directly set the Y coordinate of the point's position. 
-            // However, localPosition is a property. It passes a vector to us, 
-            // or accepts one from us. So we'd end up adjusting a local vector 
-            // value, which doesn't affect the point's position at all.
-            // As we haven't explicitly stored it in a variable first, the 
-            // operation is meaningless and will produce a compiler error.
+    private float SineFunction(float x, float t)
+    {
+        return Mathf.Sin(Mathf.PI * (x + t));
+    }
 
+    /// <summary>
+    /// A duplicate of the original Sinefunction with a slight added complexity.
+    /// changes twice as fast, which is done by multiplying the argument of the 
+    /// sine function by 2. At the same time, we'll halve the result of this function. 
+    /// That keeps the shape of the sine wave the same, just at half size.
+    /// 
+    /// As both the positive and negative extremes of the sine function are 1 and −1,
+    /// the maximum and minimum values of this new function will be 1.5 and −1.5. 
+    /// To guarantee that we stay in the −1–1 range, we should divide the entire thing
+    /// by 1.5, which is the same as multiplying by 2/3.
+    /// </summary>
+    private float MultiSineFunction(float x, float t)
+    {
+        float toReturn = Mathf.Sin(Mathf.PI * (x + t));
+        toReturn += Mathf.Sin(2f * Mathf.PI * (x + t)) / 2f;
+        toReturn *= 2f / 3f;
 
-        }
-        
+        return toReturn;
     }
 }
