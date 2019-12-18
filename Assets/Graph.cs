@@ -54,21 +54,37 @@ public class Graph : MonoBehaviour
         // Time.time returns the time at the moment of the frame,
         // since Update is called once per frame, Time.time remains the same during this function
         float t = Time.time;
+
+        // We'll use the delegate to worry about the exact implementation of the SineFunction
+        GraphFunction graphFunction;
+
+
+        if (this.Function == 0)
+        {
+            graphFunction = SineFunction;
+        }
+        else
+        {
+            graphFunction = MultiSineFunction;
+        }
+
         // we'll use Update to manipulate the .y positions of all the points
         // to make the graph animate
-        for(int i = 0; i < this._pointPrefabs.Length; i++)
+        for (int i = 0; i < this._pointPrefabs.Length; i++)
         {
             Transform point = this._pointPrefabs[i];
             Vector3 position = point.localPosition;
 
-            if(this.Function == 0)
-            {
-                position.y = Graph.SineFunction(position.x, t);
-            }
-            else
-            {
-                position.y = Graph.MultiSineFunction(position.x, t, this.TimeInfluence);
-            }
+            //if(this.Function == 0)
+            //{
+            //    position.y = Graph.SineFunction(position.x, t);
+            //}
+            //else
+            //{
+            //    position.y = Graph.MultiSineFunction(position.x, t, this.TimeInfluence);
+            //}
+
+            position.y = graphFunction(position.x, t);
 
             // remember to explicitly set the position to the point taken
             // from the array*
@@ -83,7 +99,7 @@ public class Graph : MonoBehaviour
     ///   However, we are not using it's static-ness here because they are only used by the
     ///   Graph class at the moment.
     /// </summary>
-    static float SineFunction(float x, float t)
+    private float SineFunction(float x, float t)
     {
         return Mathf.Sin(Mathf.PI * (x + t));
     }
@@ -106,10 +122,10 @@ public class Graph : MonoBehaviour
     ///   However, we are not using it's static-ness here because they are only used by the
     ///   Graph class at the moment.
     /// </summary>
-    static float MultiSineFunction(float x, float t, float timeInfluence)
+    private float MultiSineFunction(float x, float t)
     {
         float toReturn = Mathf.Sin(Mathf.PI * (x + t));
-        toReturn += Mathf.Sin(2f * Mathf.PI * (x + timeInfluence * t)) / 2f;
+        toReturn += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * t)) / 2f;
         toReturn *= 2f / 3f;
 
         return toReturn;
