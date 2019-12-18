@@ -30,13 +30,24 @@ public class Graph : MonoBehaviour
 
         position.y = 0f;
         position.z = 0f;
-        
-        this._pointPrefabs = new Transform[this.AmountCubes];
 
-        for(int i = 0; i < this._pointPrefabs.Length; i++)
+        // Since we're incorporating the z-axis as well,
+        // we have to square the amount of points. Adjust the creation of the 
+        // points array in Awake so it's big enough to contain all the points.
+        this._pointPrefabs = new Transform[this.AmountCubes * this.AmountCubes];
+
+        for(int i = 0, x = 0, z = 0; i < this._pointPrefabs.Length; i++, x++, z++)
         {
+            if (x == this.AmountCubes)
+            {
+                // we've finished 1 row
+                x = 0;
+                z += 1;
+            }
+
             Transform point = Instantiate(this.PointPrefab);
-            position.x = (i + 0.5f) * step - 1f;
+            position.x = (x + 0.5f) * step - 1f;
+            position.z = (z + 0.5f) * step - 1f;
 
             point.localPosition = position;
             point.localScale = scale;
@@ -69,7 +80,7 @@ public class Graph : MonoBehaviour
             Transform point = this._pointPrefabs[i];
             Vector3 position = point.localPosition;
 
-            position.y = graphFunction(position.x, t);
+            position.y = graphFunction(position.x, position.z, t);
 
             // remember to explicitly set the position to the point taken
             // from the array*
@@ -84,9 +95,9 @@ public class Graph : MonoBehaviour
     ///   However, we are not using it's static-ness here because they are only used by the
     ///   Graph class at the moment.
     /// </summary>
-    static float SineFunction(float x, float t)
+    static float SineFunction(float x, float z, float time)
     {
-        return Mathf.Sin(Mathf.PI * (x + t));
+        return Mathf.Sin(Mathf.PI * (x + time));
     }
 
     /// <summary>
@@ -107,11 +118,11 @@ public class Graph : MonoBehaviour
     ///   However, we are not using it's static-ness here because they are only used by the
     ///   Graph class at the moment.
     /// </summary>
-    static float MultiSineFunction(float x, float t)
+    static float MultiSineFunction(float x, float z, float time)
     {
-        float toReturn = Mathf.Sin(Mathf.PI * (x + t));
-        //toReturn += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * t)) / 2f;
-        toReturn += Mathf.Sin(2f * Mathf.PI * (x + t)) / 2f;
+        float toReturn = Mathf.Sin(Mathf.PI * (x + time));
+        //toReturn += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * time)) / 2f;
+        toReturn += Mathf.Sin(2f * Mathf.PI * (x + time)) / 2f;
         toReturn *= 2f / 3f;
 
         return toReturn;

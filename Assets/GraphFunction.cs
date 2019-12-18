@@ -1,3 +1,3 @@
 ﻿using UnityEngine;
 
-public delegate float GraphFunction (float x, float time);
+public delegate float GraphFunction (float x, float z, float time);

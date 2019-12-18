@@ -49,7 +49,7 @@
 			// We'll use the worldPos to determine the r of the shader
 			// we need to add a formula to ensure it works with negative
 			// worldposition as well
-            o.Albedo.rg = IN.worldPos.xy * 0.5 + 0.5;
+            o.Albedo.rgb = IN.worldPos.xyz * 0.5 + 0.5;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
