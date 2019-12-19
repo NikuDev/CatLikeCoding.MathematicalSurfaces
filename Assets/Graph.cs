@@ -280,9 +280,17 @@ public class Graph : MonoBehaviour
     static Vector3 CylinderFunction(float u, float v, float t)
     {
         Vector3 p;
-        p.x = Mathf.Sin(pi * u);
-        p.y = u;
-        p.z = Mathf.Cos(pi * u);
+        // star shape (a sinus wave x6 around the cylinder circle on the x-axis)
+        //float radius = 1f + Mathf.Sin(6f * pi * u) * 0.2f;
+        // using v instead of u creates a 'cylindrical wave' along the y-axis
+        //float radius = 1f + Mathf.Sin(2f * pi * v) * 0.2f;
+
+        // we can also use both v + u to create a mix of the 2 formulas above
+        float radius = 0.8f + Mathf.Sin(pi * (6f * u + 2f * v + t)) * 0.2f;
+
+        p.x = radius * Mathf.Sin(pi * u);
+        p.y = v;
+        p.z = radius * Mathf.Cos(pi * u);
         return p;
     }
 }
