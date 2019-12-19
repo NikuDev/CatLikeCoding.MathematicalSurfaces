@@ -22,7 +22,11 @@ public class Graph : MonoBehaviour
 
     static readonly GraphFunction[] GraphFunctions =
     {
-        SineFunction, Sine2DFunction, MultiSineFunction
+        SineFunction,
+        Sine2DFunction,
+        Sine2DAlternativeFunction,
+        MultiSineFunction,
+        MultiSine2DFunction
     };
 
     const float pi = Mathf.PI;
@@ -127,12 +131,22 @@ public class Graph : MonoBehaviour
     /// </summary>
     static float MultiSineFunction(float x, float z, float time)
     {
-        float toReturn = Mathf.Sin(pi * (x + time));
-        //toReturn += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * time)) / 2f;
-        toReturn += Mathf.Sin(2f * pi * (x + time)) / 2f;
-        toReturn *= 2f / 3f;
+        float y = Mathf.Sin(pi * (x + time));
+        //y += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * time)) / 2f;
+        y += Mathf.Sin(2f * pi * (x + time)) / 2f;
+        y *= 2f / 3f;
 
-        return toReturn;
+        return y;
+    }
+
+    static float MultiSine2DFunction(float x, float z, float time)
+    {
+        float y = 4f * Mathf.Sin(pi * (x + z + time * 0.5f));
+        y += Mathf.Sin(pi * (x + time));
+        y += Mathf.Sin(2f * pi * (z + 2f * time)) * 0.5f;
+        y *= 1f / 5.5f;
+
+        return y;
     }
 
     /// <summary>
@@ -144,5 +158,19 @@ public class Graph : MonoBehaviour
     static float Sine2DFunction(float x, float z, float t)
     {
         return Mathf.Sin(pi * (x + z + t));
+    }
+
+    /// <summary>
+    /// we're going to create a new function that uses both X and Z as input. 
+    /// Create a method for it, named Sine2DFunction. Have it represent the function 
+    /// f(x, z, t) = sin(π(x+z+t)), which is the most straightforward way to 
+    /// make a sine wave based on both x and z.
+    /// </summary>
+    static float Sine2DAlternativeFunction(float x, float z, float t)
+    {
+        float y = Mathf.Sin(pi * (x + t));
+        y += Mathf.Sin(pi * (z + t));
+        y *= 0.5f; // halve the result to keep it in the -1 - 1 range
+        return y;
     }
 }

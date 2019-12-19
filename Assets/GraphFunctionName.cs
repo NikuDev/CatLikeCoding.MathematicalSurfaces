@@ -8,5 +8,7 @@ public enum GraphFunctionName
 {
     Sine,
     Sine2D,
-    MultiSine
+    Sine2DAlternative,
+    MultiSine,
+    MultiSine2DFunction
 }
