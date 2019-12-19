@@ -7,5 +7,6 @@ using System.Threading.Tasks;
 public enum GraphFunctionName
 {
     Sine,
+    Sine2D,
     MultiSine
 }

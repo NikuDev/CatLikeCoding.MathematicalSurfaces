@@ -4,15 +4,8 @@ using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
+    // UI variables //
     public Transform PointPrefab;
-
-    // a private collection to hold all generated prefabs
-    private Transform[] _pointPrefabs;
-
-    static readonly GraphFunction[] GraphFunctions =
-    {
-        SineFunction, MultiSineFunction
-    };
 
     // make the inspector use a slider by defining '[Range(start,end)]'
     [Range (10, 50)]
@@ -21,6 +14,19 @@ public class Graph : MonoBehaviour
     // a simple slider to select which SineFunction to use    
     // replaced the int way of defining the function, by an enum
     public GraphFunctionName Function;
+
+    // Logic variables //
+
+    // a private collection to hold all generated prefabs
+    private Transform[] _pointPrefabs;
+
+    static readonly GraphFunction[] GraphFunctions =
+    {
+        SineFunction, Sine2DFunction, MultiSineFunction
+    };
+
+    const float pi = Mathf.PI;
+
 
     void Awake()
     {
@@ -36,28 +42,29 @@ public class Graph : MonoBehaviour
         // points array in Awake so it's big enough to contain all the points.
         this._pointPrefabs = new Transform[this.AmountCubes * this.AmountCubes];
 
-        for(int i = 0, x = 0, z = 0; i < this._pointPrefabs.Length; i++, x++)
-        {
-            if (x == this.AmountCubes)
-            {
-                // we've finished 1 row
-                x = 0;
-                z += 1;
-            }
+        // i = 
+        // x =
+        // z = 
 
-            Transform point = Instantiate(this.PointPrefab);
-            position.x = (x + 0.5f) * step - 1f;
+        for(int i = 0, z = 0; i < this._pointPrefabs.Length; z++)
+        {
             position.z = (z + 0.5f) * step - 1f;
 
-            point.localPosition = position;
-            point.localScale = scale;
+            for(int x = 0; x < this.AmountCubes; x++, i++)
+            {
+                Transform point = Instantiate(this.PointPrefab);
+                position.x = (x + 0.5f) * step - 1f;
 
-            // to make the instantiated prefab a child of the Graph (this),
-            // we can use 'transform', which is inherently available in this object
-            point.SetParent(this.transform, false);
+                point.localPosition = position;
+                point.localScale = scale;
 
-            // add it to the collection for later manipulation
-            this._pointPrefabs[i] = point;
+                // to make the instantiated prefab a child of the Graph (this),
+                // we can use 'transform', which is inherently available in this object
+                point.SetParent(this.transform, false);
+
+                // add it to the collection for later manipulation
+                this._pointPrefabs[i] = point;
+            }
         }
     }
 
@@ -97,7 +104,7 @@ public class Graph : MonoBehaviour
     /// </summary>
     static float SineFunction(float x, float z, float time)
     {
-        return Mathf.Sin(Mathf.PI * (x + time));
+        return Mathf.Sin(pi * (x + time));
     }
 
     /// <summary>
@@ -120,11 +127,22 @@ public class Graph : MonoBehaviour
     /// </summary>
     static float MultiSineFunction(float x, float z, float time)
     {
-        float toReturn = Mathf.Sin(Mathf.PI * (x + time));
+        float toReturn = Mathf.Sin(pi * (x + time));
         //toReturn += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * time)) / 2f;
-        toReturn += Mathf.Sin(2f * Mathf.PI * (x + time)) / 2f;
+        toReturn += Mathf.Sin(2f * pi * (x + time)) / 2f;
         toReturn *= 2f / 3f;
 
         return toReturn;
+    }
+
+    /// <summary>
+    /// we're going to create a new function that uses both X and Z as input. 
+    /// Create a method for it, named Sine2DFunction. Have it represent the function 
+    /// f(x, z, t) = sin(π(x+z+t)), which is the most straightforward way to 
+    /// make a sine wave based on both x and z.
+    /// </summary>
+    static float Sine2DFunction(float x, float z, float t)
+    {
+        return Mathf.Sin(pi * (x + z + t));
     }
 }
