@@ -15,7 +15,7 @@ public class Graph : MonoBehaviour
     };
 
     // make the inspector use a slider by defining '[Range(start,end)]'
-    [Range (10,100)]
+    [Range (10, 50)]
     public int AmountCubes;
 
     // a simple slider to select which SineFunction to use    
@@ -36,7 +36,7 @@ public class Graph : MonoBehaviour
         // points array in Awake so it's big enough to contain all the points.
         this._pointPrefabs = new Transform[this.AmountCubes * this.AmountCubes];
 
-        for(int i = 0, x = 0, z = 0; i < this._pointPrefabs.Length; i++, x++, z++)
+        for(int i = 0, x = 0, z = 0; i < this._pointPrefabs.Length; i++, x++)
         {
             if (x == this.AmountCubes)
             {
@@ -85,7 +85,7 @@ public class Graph : MonoBehaviour
             // remember to explicitly set the position to the point taken
             // from the array*
             point.localPosition = position;
-        }        
+        }
     }
 
     /// <summary>
