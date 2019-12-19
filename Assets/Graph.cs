@@ -29,7 +29,8 @@ public class Graph : MonoBehaviour
         Sine2DAlternativeFunction,
         MultiSineFunction,
         MultiSine2DFunction,
-        RippleFunction
+        RippleFunction,
+        CylinderFunction
     };
 
     const float pi = Mathf.PI;
@@ -37,41 +38,53 @@ public class Graph : MonoBehaviour
 
     void Awake()
     {
-        float step = 2f / AmountCubes;
+        float step = 2f / this.AmountCubes;
         Vector3 scale = Vector3.one * step;
-        Vector3 position;
-
-        position.y = 0f;
-        position.z = 0f;
 
         // Since we're incorporating the z-axis as well,
         // we have to square the amount of points. Adjust the creation of the 
         // points array in Awake so it's big enough to contain all the points.
         this._pointPrefabs = new Transform[this.AmountCubes * this.AmountCubes];
 
-        // i = 
-        // x =
-        // z = 
+        #region OLD way of animating relied on a explicit starting position of the prefabs
+        //// i = tracker for creating a, i.e. 50x50, grid
+        //// x = base for the position on the x-axis
+        //// z = base for the position on the z-axis
 
-        for(int i = 0, z = 0; i < this._pointPrefabs.Length; z++)
+        //Vector3 position;
+
+        //position.y = 0f;
+        //position.z = 0f;
+        //for(int i = 0, z = 0; i < this._pointPrefabs.Length; z++)
+        //{
+        //    position.z = (z + 0.5f) * step - 1f;
+
+        //    for(int x = 0; x < this.AmountCubes; x++, i++)
+        //    {
+        //        Transform point = Instantiate(this.PointPrefab);
+        //        position.x = (x + 0.5f) * step - 1f;
+
+        //        point.localPosition = position;
+        //        point.localScale = scale;
+
+        //        // to make the instantiated prefab a child of the Graph (this),
+        //        // we can use 'transform', which is inherently available in this object
+        //        point.SetParent(this.transform, false);
+
+        //        // add it to the collection for later manipulation
+        //        this._pointPrefabs[i] = point;
+        //    }
+        //}
+        #endregion
+
+        // With the new (u, v, time) function, we only need to instantiate the full
+        // collection of prefabs to work with. No longer setting the position of them.
+        for (int i = 0; i < this._pointPrefabs.Length; i++)
         {
-            position.z = (z + 0.5f) * step - 1f;
-
-            for(int x = 0; x < this.AmountCubes; x++, i++)
-            {
-                Transform point = Instantiate(this.PointPrefab);
-                position.x = (x + 0.5f) * step - 1f;
-
-                point.localPosition = position;
-                point.localScale = scale;
-
-                // to make the instantiated prefab a child of the Graph (this),
-                // we can use 'transform', which is inherently available in this object
-                point.SetParent(this.transform, false);
-
-                // add it to the collection for later manipulation
-                this._pointPrefabs[i] = point;
-            }
+            Transform point = Instantiate(this.PointPrefab);
+            point.localScale = scale;
+            point.SetParent(transform, false);
+            this._pointPrefabs[i] = point;
         }
     }
 
@@ -87,18 +100,35 @@ public class Graph : MonoBehaviour
         // to the int the slider in the editor is set to
         GraphFunction graphFunction = GraphFunctions[(int)this.Function];
 
+        #region OLD 1-Dimensional way (Y-axis) of animating
         // we'll use Update to manipulate the .y positions of all the points
         // to make the graph animate
-        for (int i = 0; i < this._pointPrefabs.Length; i++)
+        //for (int i = 0; i < this._pointPrefabs.Length; i++)
+        //{
+        //    Transform point = this._pointPrefabs[i];
+        //    Vector3 position = point.localPosition;
+
+        //    position.y = graphFunction(position.x, position.z, t);
+
+        //    // remember to explicitly set the position to the point taken
+        //    // from the array*
+        //    point.localPosition = position;
+        //}
+        #endregion
+
+        // We are now no longer manipulating 1 dimension of a point, but
+        // setting a new 3D location instead, this also simplifies the Awake() function
+        // because we do not rely on starting positions anymore.
+        float step = 2f / this.AmountCubes;
+        for(int i = 0, z = 0; z < this.AmountCubes; z++)
         {
-            Transform point = this._pointPrefabs[i];
-            Vector3 position = point.localPosition;
+            float v = (z + 0.5f) * step - 1f;
 
-            position.y = graphFunction(position.x, position.z, t);
-
-            // remember to explicitly set the position to the point taken
-            // from the array*
-            point.localPosition = position;
+            for(int x = 0; x < this.AmountCubes; x++, i++)
+            {
+                float u = (x + 0.5f) * step - 1f;
+                this._pointPrefabs[i].localPosition = graphFunction(u, v, t);
+            }
         }
     }
 
@@ -109,19 +139,68 @@ public class Graph : MonoBehaviour
     ///   However, we are not using it's static-ness here because they are only used by the
     ///   Graph class at the moment.
     /// </summary>
-    static float SineFunction(float x, float z, float time)
+    static Vector3 SineFunction(float x, float z, float time)
     {
-        return Mathf.Sin(pi * (x + time));
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + time));
+        p.z = z;
+
+        return p;
     }
 
-    static float CosineFunction(float x, float z, float time)
+    /// <summary>
+    /// we're going to create a new function that uses both X and Z as input. 
+    /// Create a method for it, named Sine2DFunction. Have it represent the function 
+    /// f(x, z, t) = sin(π(x+z+t)), which is the most straightforward way to 
+    /// make a sine wave based on both x and z.
+    /// </summary>
+    static Vector3 Sine2DFunction(float x, float z, float t)
     {
-        return Mathf.Cos(pi * (x + time));
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + z + t));
+        p.z = z;
+
+        return p;
     }
 
-    static float TangesFunction(float x, float z, float time)
+    /// <summary>
+    /// we're going to create a new function that uses both X and Z as input. 
+    /// Create a method for it, named Sine2DFunction. Have it represent the function 
+    /// f(x, z, t) = sin(π(x+z+t)), which is the most straightforward way to 
+    /// make a sine wave based on both x and z.
+    /// </summary>
+    static Vector3 Sine2DAlternativeFunction(float x, float z, float t)
     {
-        return Mathf.Tan(pi * (x + time));
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + t));
+        p.y += Mathf.Sin(pi * (z + t));
+        p.y *= 0.5f; // halve the result to keep it in the -1 - 1 range
+        p.z = z;
+
+        return p;
+    }
+
+    static Vector3 CosineFunction(float x, float z, float time)
+    {
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Cos(pi * (x + time));
+        p.z = z;
+
+        return p;
+    }
+
+    static Vector3 TangesFunction(float x, float z, float time)
+    {
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Tan(pi * (x + time));
+        p.z = z;
+
+        return p;
     }
 
     /// <summary>
@@ -142,49 +221,30 @@ public class Graph : MonoBehaviour
     ///   However, we are not using it's static-ness here because they are only used by the
     ///   Graph class at the moment.
     /// </summary>
-    static float MultiSineFunction(float x, float z, float time)
+    static Vector3 MultiSineFunction(float x, float z, float time)
     {
-        float y = Mathf.Sin(pi * (x + time));
+        Vector3 p;
+        p.x = x;
+        p.y = Mathf.Sin(pi * (x + time));
         //y += Mathf.Sin(2f * Mathf.PI * (x + this.TimeInfluence * time)) / 2f;
-        y += Mathf.Sin(2f * pi * (x + time)) / 2f;
-        y *= 2f / 3f;
+        p.y += Mathf.Sin(2f * pi * (x + time)) / 2f;
+        p.y *= 2f / 3f;
+        p.z = z;
 
-        return y;
+        return p;
     }
 
-    static float MultiSine2DFunction(float x, float z, float time)
+    static Vector3 MultiSine2DFunction(float x, float z, float time)
     {
-        float y = 4f * Mathf.Sin(pi * (x + z + time * 0.5f));
-        y += Mathf.Sin(pi * (x + time));
-        y += Mathf.Sin(2f * pi * (z + 2f * time)) * 0.5f;
-        y *= 1f / 5.5f;
+        Vector3 p;
+        p.x = x;
+        p.y = 4f * Mathf.Sin(pi * (x + z + time * 0.5f));
+        p.y += Mathf.Sin(pi * (x + time));
+        p.y += Mathf.Sin(2f * pi * (z + 2f * time)) * 0.5f;
+        p.y *= 1f / 5.5f;
+        p.z = z;
 
-        return y;
-    }
-
-    /// <summary>
-    /// we're going to create a new function that uses both X and Z as input. 
-    /// Create a method for it, named Sine2DFunction. Have it represent the function 
-    /// f(x, z, t) = sin(π(x+z+t)), which is the most straightforward way to 
-    /// make a sine wave based on both x and z.
-    /// </summary>
-    static float Sine2DFunction(float x, float z, float t)
-    {
-        return Mathf.Sin(pi * (x + z + t));
-    }
-
-    /// <summary>
-    /// we're going to create a new function that uses both X and Z as input. 
-    /// Create a method for it, named Sine2DFunction. Have it represent the function 
-    /// f(x, z, t) = sin(π(x+z+t)), which is the most straightforward way to 
-    /// make a sine wave based on both x and z.
-    /// </summary>
-    static float Sine2DAlternativeFunction(float x, float z, float t)
-    {
-        float y = Mathf.Sin(pi * (x + t));
-        y += Mathf.Sin(pi * (z + t));
-        y *= 0.5f; // halve the result to keep it in the -1 - 1 range
-        return y;
+        return p;
     }
 
 
@@ -194,13 +254,16 @@ public class Graph : MonoBehaviour
     /// corners of the grid, because those points are furthest away from the origin. 
     /// Exactly at the corners, the distance would be √2, which is roughly 1.4142.
     /// </summary>
-    static float RippleFunction(float x, float z, float t)
+    static Vector3 RippleFunction(float x, float z, float t)
     {
+        Vector3 p;
+        p.x = x;
+
         // by taking the square root in a Pythagorian way, we
         // calculate the distance of the hypotenuse of the right triangle (a^2 * b^2 = c^2)
         float distance = Mathf.Sqrt(x * x + z * z);
         //To create our ripple, we'll have to use f(x, z, t) = sin(πD) where D is the distance.
-        float y = Mathf.Sin(pi * (4f * distance - t));
+        p.y = Mathf.Sin(pi * (4f * distance - t));
         // with only the formula above the undulation is far too extreme
 
         // We can take care of that by reducing the amplitude of the wave. 
@@ -208,7 +271,18 @@ public class Graph : MonoBehaviour
         // However, simply dividing by the distance will result in a division by 
         // zero at the origin, and cause the amplitude to become extreme near the origin.
         // to prevent this, we'll use 1 / 1 + 10D
-        y /= 1f + 10f * distance;
-        return y;
+        p.y /= 1f + 10f * distance;
+        p.z = z;
+
+        return p;
+    }
+
+    static Vector3 CylinderFunction(float u, float v, float t)
+    {
+        Vector3 p;
+        p.x = Mathf.Sin(pi * u);
+        p.y = u;
+        p.z = Mathf.Cos(pi * u);
+        return p;
     }
 }

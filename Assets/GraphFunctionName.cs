@@ -13,5 +13,6 @@ public enum GraphFunctionName
     Sine2DAlternative,
     MultiSine,
     MultiSine2D,
-    Ripple
+    Ripple,
+    Cylinder
 }
