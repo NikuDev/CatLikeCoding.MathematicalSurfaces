@@ -242,7 +242,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PointPrefab: {fileID: 6779472290261189568, guid: 83aba7654682d5742a49cbd7ddc6eeaf,
     type: 3}
-  AmountCubes: 32
+  AmountCubes: 50
   Function: 0
 --- !u!4 &737382429
 Transform:

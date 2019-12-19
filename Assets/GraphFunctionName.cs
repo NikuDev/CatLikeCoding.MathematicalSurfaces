@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 public enum GraphFunctionName
 {
     Sine,
+    Cosine,
+    Tanges,
     Sine2D,
     Sine2DAlternative,
     MultiSine,
-    MultiSine2DFunction
+    MultiSine2D,
+    Ripple
 }

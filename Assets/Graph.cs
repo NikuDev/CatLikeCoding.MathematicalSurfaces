@@ -23,10 +23,13 @@ public class Graph : MonoBehaviour
     static readonly GraphFunction[] GraphFunctions =
     {
         SineFunction,
+        CosineFunction,
+        TangesFunction,
         Sine2DFunction,
         Sine2DAlternativeFunction,
         MultiSineFunction,
-        MultiSine2DFunction
+        MultiSine2DFunction,
+        RippleFunction
     };
 
     const float pi = Mathf.PI;
@@ -111,6 +114,16 @@ public class Graph : MonoBehaviour
         return Mathf.Sin(pi * (x + time));
     }
 
+    static float CosineFunction(float x, float z, float time)
+    {
+        return Mathf.Cos(pi * (x + time));
+    }
+
+    static float TangesFunction(float x, float z, float time)
+    {
+        return Mathf.Tan(pi * (x + time));
+    }
+
     /// <summary>
     /// A duplicate of the original Sinefunction with a slight added complexity.
     /// changes twice as fast, which is done by multiplying the argument of the 
@@ -171,6 +184,31 @@ public class Graph : MonoBehaviour
         float y = Mathf.Sin(pi * (x + t));
         y += Mathf.Sin(pi * (z + t));
         y *= 0.5f; // halve the result to keep it in the -1 - 1 range
+        return y;
+    }
+
+
+    /// <summary>
+    /// What we get is a cone shape that's at zero in the middle and increases 
+    /// linearly with the distance from the origin. It ends up highest near the 
+    /// corners of the grid, because those points are furthest away from the origin. 
+    /// Exactly at the corners, the distance would be √2, which is roughly 1.4142.
+    /// </summary>
+    static float RippleFunction(float x, float z, float t)
+    {
+        // by taking the square root in a Pythagorian way, we
+        // calculate the distance of the hypotenuse of the right triangle (a^2 * b^2 = c^2)
+        float distance = Mathf.Sqrt(x * x + z * z);
+        //To create our ripple, we'll have to use f(x, z, t) = sin(πD) where D is the distance.
+        float y = Mathf.Sin(pi * (4f * distance - t));
+        // with only the formula above the undulation is far too extreme
+
+        // We can take care of that by reducing the amplitude of the wave. 
+        // Instead of doing this uniformly, we can make it depend on the distance as well.
+        // However, simply dividing by the distance will result in a division by 
+        // zero at the origin, and cause the amplitude to become extreme near the origin.
+        // to prevent this, we'll use 1 / 1 + 10D
+        y /= 1f + 10f * distance;
         return y;
     }
 }
