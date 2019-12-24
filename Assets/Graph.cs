@@ -30,7 +30,11 @@ public class Graph : MonoBehaviour
         MultiSineFunction,
         MultiSine2DFunction,
         RippleFunction,
-        CylinderFunction
+        CylinderFunction,
+        SphereFunction,
+        SpherePulsatingFunction,
+        TorusFunction,
+        TorusPulsatingFunction
     };
 
     const float pi = Mathf.PI;
@@ -291,6 +295,60 @@ public class Graph : MonoBehaviour
         p.x = radius * Mathf.Sin(pi * u);
         p.y = v;
         p.z = radius * Mathf.Cos(pi * u);
+        return p;
+    }
+
+    static Vector3 SphereFunction(float u, float v, float t)
+    {
+        Vector3 p;
+        // R=cos(πv/2)
+
+        float r = Mathf.Cos(pi * 0.5f * v);
+        p.x = r * Mathf.Sin(pi * u);
+        p.y = Mathf.Sin(pi * 0.5f * v);
+        p.z = r * Mathf.Cos(pi * u);
+        return p;
+    }
+
+    static Vector3 SpherePulsatingFunction(float u, float v, float t)
+    {
+        Vector3 p;
+        // R=cos(πv/2)
+
+        float r = 0.8f + Mathf.Sin(pi * (6f * u + t)) * 0.1f;
+        r += Mathf.Sin(pi * (4f * v + t)) * 0.1f;
+        float s = r * Mathf.Cos(pi * 0.5f * v);
+        p.x = s * Mathf.Sin(pi * u);
+        p.y = r * Mathf.Sin(pi * 0.5f * v);
+        p.z = s * Mathf.Cos(pi * u);
+        return p;
+    }
+
+    static Vector3 TorusFunction(float u, float v, float t)
+    {
+        Vector3 p;
+
+        float r1 = 1f * t;
+        float r2 = 0.5f * t;
+
+        float s = r2 * Mathf.Cos(pi * v) + r1;
+        p.x = s * Mathf.Sin(pi * u);
+        p.y = r2 * Mathf.Sin(pi * v);
+        p.z = s * Mathf.Cos(pi * u);
+        return p;
+    }
+
+    static Vector3 TorusPulsatingFunction(float u, float v, float t)
+    {
+        Vector3 p;
+
+        float r1 = 0.65f + Mathf.Sin(pi * (6f * u + t)) * 0.1f;
+        float r2 = 0.2f + Mathf.Sin(pi * (4f * v + t)) * 0.05f;
+
+        float s = r2 * Mathf.Cos(pi * v) + r1;
+        p.x = s * Mathf.Sin(pi * u);
+        p.y = r2 * Mathf.Sin(pi * v);
+        p.z = s * Mathf.Cos(pi * u);
         return p;
     }
 }
